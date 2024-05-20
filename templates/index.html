@@ -30,6 +30,7 @@
     <button type="button" onclick="clearResults()">Limpiar Resultados</button>
     {% if results %}
         <h2>Resultados Léxicos</h2>
+        {% if language == 'python' %}
         <div class="table-container">
             <h3>Python</h3>
             <table border="1">
@@ -59,6 +60,7 @@
                 </tbody>
             </table>
         </div>
+        {% elif language == 'javascript' %}
         <div class="table-container">
             <h3>JavaScript</h3>
             <table border="1">
@@ -88,6 +90,7 @@
                 </tbody>
             </table>
         </div>
+        {% elif language == 'java' %}
         <div class="table-container">
             <h3>Java</h3>
             <table border="1">
@@ -117,6 +120,7 @@
                 </tbody>
             </table>
         </div>
+        {% endif %}
     {% endif %}
 </body>
 </html>
