@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lexical Analyzer</title>
+    <title>Analizador Léxico</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <script>
-    function clearResults(){
+    function clearResults() {
         document.querySelector('textarea[name="code"]').value = "";
         const tbodies = document.querySelectorAll("table tbody");
         tbodies.forEach(tbody => {
@@ -30,9 +30,7 @@
     <button type="button" onclick="clearResults()">Limpiar Resultados</button>
     {% if results %}
         <h2>Resultados Léxicos</h2>
-        {% if language == 'python' %}
         <div class="table-container">
-            <h3>Python</h3>
             <table border="1">
                 <thead>
                     <tr>
@@ -43,10 +41,14 @@
                         <th>NUM</th>
                         <th>SIMB</th>
                         <th>TIPO</th>
+                        <th>Python</th>
+                        <th>JavaScript</th>
+                        <th>Java</th>
+                        <th>ERROR</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for token in results.python %}
+                    {% for token in results %}
                         <tr>
                             <td>{{ token.value }}</td>
                             <td>{{ token.PR }}</td>
@@ -55,72 +57,15 @@
                             <td>{{ token.NUM }}</td>
                             <td>{{ token.SIMB }}</td>
                             <td>{{ token.TIPO }}</td>
+                            <td>{{ token.python }}</td>
+                            <td>{{ token.javascript }}</td>
+                            <td>{{ token.java }}</td>
+                            <td>{{ token.ERROR }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-        {% elif language == 'javascript' %}
-        <div class="table-container">
-            <h3>JavaScript</h3>
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>Token</th>
-                        <th>PR</th>
-                        <th>ID</th>
-                        <th>CAD</th>
-                        <th>NUM</th>
-                        <th>SIMB</th>
-                        <th>TIPO</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for token in results.javascript %}
-                        <tr>
-                            <td>{{ token.value }}</td>
-                            <td>{{ token.PR }}</td>
-                            <td>{{ token.ID }}</td>
-                            <td>{{ token.CAD }}</td>
-                            <td>{{ token.NUM }}</td>
-                            <td>{{ token.SIMB }}</td>
-                            <td>{{ token.TIPO }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% elif language == 'java' %}
-        <div class="table-container">
-            <h3>Java</h3>
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>Token</th>
-                        <th>PR</th>
-                        <th>ID</th>
-                        <th>CAD</th>
-                        <th>NUM</th>
-                        <th>SIMB</th>
-                        <th>TIPO</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for token in results.java %}
-                        <tr>
-                            <td>{{ token.value }}</td>
-                            <td>{{ token.PR }}</td>
-                            <td>{{ token.ID }}</td>
-                            <td>{{ token.CAD }}</td>
-                            <td>{{ token.NUM }}</td>
-                            <td>{{ token.SIMB }}</td>
-                            <td>{{ token.TIPO }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% endif %}
     {% endif %}
 </body>
 </html>

@@ -9,59 +9,85 @@ lexicon = {
             'def', 'return', 'if', 'else', 'for', 'while', 'class', 'import', 'from', 'try', 'except', 'with', 'as', 'assert',
             'break', 'continue', 'pass', 'lambda', 'yield', 'global', 'nonlocal', 'del', 'raise', 'is', 'in', 'and', 'or', 'not', 'None', 'print'
         ],
-        'digits': r'\d',
+        'digits': r'\d+',
         'identifier': r'[a-zA-Z_][a-zA-Z0-9_]*',
-        'variable': r'[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*.*'
+        'symbols': r'[\[\]{}()=+\-*/%,;.]'
     },
     'javascript': {
         'keywords': [
             'var', 'let', 'const', 'function', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'return',
             'try', 'catch', 'finally', 'throw', 'class', 'extends', 'import', 'export', 'new', 'this', 'super', 'null', 'undefined', 'true', 'false', 'console'
         ],
-        'digits': r'\d',
+        'digits': r'\d+',
         'identifier': r'[a-zA-Z_$][a-zA-Z0-9_$]*',
-        'variable': r'[a-zA-Z_$][a-zA-Z0-9_$]*\s*=\s*.*'
+        'symbols': r'[\[\]{}()=+\-*/%,;.]'
     },
     'java': {
         'keywords': [
             'int', 'float', 'double', 'char', 'boolean', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'return',
             'try', 'catch', 'finally', 'throw', 'class', 'extends', 'import', 'package', 'new', 'this', 'super', 'null', 'true', 'false', 'System.out.println'
         ],
-        'digits': r'\d',
+        'digits': r'\d+',
         'identifier': r'[a-zA-Z_$][a-zA-Z0-9_$]*',
-        'variable': r'[a-zA-Z_$][a-zA-Z0-9_$]*\s*=\s*.*'
+        'symbols': r'[\[\]{}()=+\-*/%,;.]'
     }
 }
 
-def analyze_code(language, code):
+def analyze_code(code):
     tokens = []
-    lang_lexicon = lexicon.get(language)
+    lines = code.split('\n')
     
-    if not lang_lexicon:
-        return {"error": "Language not supported"}
-    
-    # Tokenize the input code
-    for line in code.split('\n'):
+    for line in lines:
         for word in line.split():
             token = {
                 'value': word,
-                'PR': 'X' if word in lang_lexicon['keywords'] else '',
-                'ID': 'X' if re.match(lang_lexicon['identifier'], word) else '',
+                'PR': '',
+                'ID': '',
                 'CAD': '',
-                'NUM': 'X' if re.match(lang_lexicon['digits'], word) else '',
+                'NUM': '',
                 'SIMB': '',
-                'TIPO': ''
+                'TIPO': '',
+                'python': '',
+                'javascript': '',
+                'java': '',
+                'ERROR': ''
             }
+            is_valid = False
+            is_symbol = False
+
+            # Check if the token is a keyword, identifier, number, or symbol
+            for lang in lexicon:
+                if word in lexicon[lang]['keywords']:
+                    token['PR'] = 'X'
+                    token[lang] = 'X'
+                    is_valid = True
+                if re.fullmatch(lexicon[lang]['digits'], word):
+                    token['NUM'] = 'X'
+                    is_valid = True
+                if re.fullmatch(lexicon[lang]['identifier'], word):
+                    token['ID'] = 'X'
+                    is_valid = True
+                if re.fullmatch(lexicon[lang]['symbols'], word):
+                    token['SIMB'] = 'X'
+                    is_valid = True
+                    is_symbol = True
+
+            # Determine the type of the token
+            if token['PR']:
+                token['TIPO'] = 'Palabra Reservada'
+            elif token['ID']:
+                token['TIPO'] = 'Identificador'
+            elif token['NUM']:
+                token['TIPO'] = 'Número'
+            elif token['SIMB']:
+                token['TIPO'] = 'Símbolo'
+            else:
+                token['ERROR'] = 'X'
+                token['TIPO'] = 'Error'
+            
             tokens.append(token)
     
     return tokens
-
-def detect_language(code):
-    for language, data in lexicon.items():
-        for keyword in data['keywords']:
-            if keyword in code:
-                return language
-    return None
 
 @app.route('/')
 def index():
@@ -74,13 +100,8 @@ def analyze():
     if not code:
         return jsonify({"error": "Please provide code"}), 400
     
-    language = detect_language(code)
-    
-    if not language:
-        return jsonify({"error": "Could not detect language"}), 400
-    
-    results = analyze_code(language, code)
-    return render_template('index.html', results={language: results}, code=code, language=language)
+    results = analyze_code(code)
+    return render_template('index.html', results=results, code=code)
 
 @app.route('/clear_results', methods=['POST'])
 def clear_results():
